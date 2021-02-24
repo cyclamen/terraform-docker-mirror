@@ -16,7 +16,7 @@
 terraform {
   required_providers {
     docker = {
-      source = "terraform-providers/docker"
+      source = "kreuzwerker/docker"
     }
     null = {
       source = "hashicorp/null"
@@ -60,6 +60,12 @@ variable "keep_locally" {
 
 variable "no_rmi" {
   description = "If true, it will not issue a `docker rmi` of the local source tag"
+  type        = bool
+  default     = false
+}
+
+variable "force_remove" {
+  description = "If true, then the image is removed forcibly when the resource is destroyed"
   type        = bool
   default     = false
 }
@@ -147,6 +153,7 @@ resource "docker_image" "image" {
   name          = data.docker_registry_image.source.name
   keep_locally  = var.keep_locally
   pull_triggers = [data.docker_registry_image.source.sha256_digest]
+  force_remove  = var.force_remove
 
   depends_on = [
     null_resource.remove-local-tag,
